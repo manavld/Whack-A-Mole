@@ -73,10 +73,11 @@ function CheckCollisionAll(mainObject: SceneObjectBase, otherObjects: Array<Scen
         //Prints
     //Diagnostics.watch("Collision: ", CheckCollision(Player.transform.position.x, TestingMole.transform.position.x, Player.transform.position.y, TestingMole.transform.position.y, ToleranceX, ToleranceY));
     //Diagnostics.watch("TopRight: ", TopRight);
+    Diagnostics.watch("Collision: ", CheckCollisionAll(Player, Moles));
     
         //Collision Action
     CheckCollisionAll(Player, Moles).onOn().subscribe(() => {
-        
+
             //Find Collision Object
         for (var i = 0; i < colliderObject.length; i++){
             if(colliderObject[i].pinLastValue() == 1){
