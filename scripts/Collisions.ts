@@ -52,6 +52,7 @@ function CheckCollisionAll(mainObject: SceneObjectBase, otherObjects: Array<Scen
     const TopLeft = await Patches.outputs.getBoolean("TopLeft");
     const BottomRight = await Patches.outputs.getBoolean("BottomRight");
     const BottomLeft = await Patches.outputs.getBoolean("BottomLeft");
+    const TimeOver = await Patches.outputs.getBoolean("TimeOver");
 
         //Active moles dictionary
     //Scene order: TR, BR, TL, BL
@@ -78,41 +79,48 @@ function CheckCollisionAll(mainObject: SceneObjectBase, otherObjects: Array<Scen
         //Collision Action
     CheckCollisionAll(Player, Moles).onOn().subscribe(() => {
 
-            //Find Collision Object
-        for (var i = 0; i < colliderObject.length; i++){
-            if(colliderObject[i].pinLastValue() == 1){
-                Diagnostics.log(Moles[i].name);
-                
-                //Check if Mole is Out
-                if(ActiveMole[i].pinLastValue() == true){
-                    Diagnostics.log("COLLISION: ");
-                    Patches.inputs.set("Collision", Reactive.once());
-                        //DO STUFF TO THE COLLECTED OBJECT
-                    //MolePlanes[i].hidden = Reactive.val(true);
+        //Check if game over
+        if(TimeOver.pinLastValue() == false){
 
-                        //For Scoring System
-                    //ScalarSignal
-                    prev_Scalar = MoleHit_Scalar;
-                    MoleHit_Scalar = prev_Scalar.add(1);
-                    Diagnostics.log(MoleHit_Scalar.pinLastValue());
-                    Patches.inputs.set("Score", MoleHit_Scalar.pinLastValue());
-                    //Number
-                    counter += 1;
-                    Diagnostics.log(counter); 
+                //Find Collision Object
+            for (var i = 0; i < colliderObject.length; i++){
+                if(colliderObject[i].pinLastValue() == 1){
+                    Diagnostics.log(Moles[i].name);
 
+                    //Check if Mole is Out
+                    if(ActiveMole[i].pinLastValue() == true){
+                        Diagnostics.log("COLLISION: ");
+                        Patches.inputs.set("Collision", Reactive.once());
+                            //DO STUFF TO THE COLLECTED OBJECT
+                        //MolePlanes[i].hidden = Reactive.val(true);
+                        Patches.inputs.set("Index", i);
+
+                            //For Scoring System
+                        //ScalarSignal
+                        prev_Scalar = MoleHit_Scalar;
+                        MoleHit_Scalar = prev_Scalar.add(1);
+                        Diagnostics.log(MoleHit_Scalar.pinLastValue());
+                        Patches.inputs.set("Score", MoleHit_Scalar.pinLastValue());
+                        //Number
+                        counter += 1;
+                        Diagnostics.log(counter); 
+
+                    }
                 }
-                       
-                
             }
-                
+
+                //ALL HOTSPOTS GOTTEN:
+            if(counter == 10){
+                Diagnostics.log("COMPLETED");
+                //Patches.inputs.set("GameComplete", true);
+            }
+
         }
 
-            //ALL HOTSPOTS GOTTEN:
-        if(counter == 10){
-            Diagnostics.log("COMPLETED");
-            Patches.inputs.set("GameComplete", true);
-        }
+    });
 
+    TimeOver.onOn().subscribe(() => {
+        Patches.inputs.set("GameComplete", true);
     });
     
 
