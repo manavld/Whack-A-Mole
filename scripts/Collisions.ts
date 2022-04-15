@@ -1,7 +1,7 @@
 
 import Scene from 'Scene';
 import Diagnostics from 'Diagnostics';
-import Reactive from 'Reactive';
+import Reactive, { scalarSignalSource } from 'Reactive';
 import Animation from 'Animation';
 import FaceGesturesModule from 'FaceGestures';
 import FaceTrackingModule from 'FaceTracking';
@@ -10,6 +10,7 @@ import TouchGesturesModule from "TouchGestures";
 import Materials from 'Materials';
 import Time from 'Time';
 import CameraInfo from 'CameraInfo';
+import FaceTracking2D from 'FaceTracking2D';
 
     //Globals
 const ToleranceX = Reactive.val(30);
@@ -53,10 +54,19 @@ function CheckCollisionAll(mainObject: SceneObjectBase, otherObjects: Array<Scen
     const BottomRight = await Patches.outputs.getBoolean("BottomRight");
     const BottomLeft = await Patches.outputs.getBoolean("BottomLeft");
     const TimeOver = await Patches.outputs.getBoolean("TimeOver");
+    const nose3D = await Scene.root.findFirst("Nose3D");
+
+        //Nose to 2D
+    var nose2D = Scene.projectToScreen(nose3D.worldTransform.position);
+
+    Patches.outputs.getPoint("Nose3D").then(pointSignal =>{
+        Patches.inputs.setPoint2D("Nose2D", nose2D);
+    });
+
 
         //Active moles dictionary
     //Scene order: TR, BR, TL, BL
-    const ActiveMole = [TopRight, BottomRight, TopLeft, BottomLeft] as BoolSignal[];
+    const ActiveMole = [TopRight, TopLeft, BottomRight, BottomLeft] as BoolSignal[];
 
         //Childs
     const MolePlanes = [] as SceneObjectBase[];
